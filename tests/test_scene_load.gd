@@ -18,6 +18,21 @@ func check_scene(path: String) -> void:
 		return
 	root.add_child(scene)
 	await process_frame
+	if path.ends_with("farm.tscn"):
+		var map: TextureRect = scene.get_node("Background/Map")
+		if map.texture == null or map.texture.get_size().x < 1000:
+			failures += 1
+			push_error("FAIL: фон фермы не импортирован")
+		else:
+			print("PASS: фон фермы импортирован ", map.texture.get_size())
+		var sprite_count := 0
+		for actor in scene.get_node("World").get_children():
+			sprite_count += actor.find_children("*", "Sprite2D", true, false).size()
+		if sprite_count < 2:
+			failures += 1
+			push_error("FAIL: пиксельные персонажи не созданы")
+		else:
+			print("PASS: созданы пиксельные персонажи: ", sprite_count)
 	print("PASS: загружена сцена " + path)
 	scene.queue_free()
 	await process_frame

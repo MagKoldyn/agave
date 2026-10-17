@@ -9,10 +9,14 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	var data: Dictionary = GameState.plots[index]
-	var soil := Color("6f432d") if data.watered else Color("8b5334")
+	var soil := Color(0.20,0.12,0.08,0.72) if data.watered else Color(0.34,0.19,0.10,0.48)
 	var patch := PackedVector2Array([Vector2(-39,-9),Vector2(-25,-22),Vector2(7,-26),Vector2(39,-12),Vector2(44,7),Vector2(25,22),Vector2(-11,25),Vector2(-42,11)])
 	draw_colored_polygon(patch,soil)
-	draw_polyline(PackedVector2Array([patch[0],patch[1],patch[2],patch[3],patch[4],patch[5],patch[6],patch[7],patch[0]]),Color("b77a4d"),2)
+	draw_polyline(PackedVector2Array([patch[0],patch[1],patch[2],patch[3],patch[4],patch[5],patch[6],patch[7],patch[0]]),Color(0.78,0.48,0.24,0.65),2)
+	for dot in 14:
+		var px := float(((index * 17 + dot * 23) % 67) - 33)
+		var py := float(((index * 31 + dot * 11) % 31) - 15)
+		draw_rect(Rect2(Vector2(px,py),Vector2(2,2)),Color(0.18,0.10,0.06,0.48))
 	if data.state in ["cleared","tilled","planted","sprout","mature"]:
 		for y in [-12.0,0.0,12.0]: stroke_ellipse(Vector2(0,y),Vector2(30,6),Color("4f3528"))
 	if data.state == "debris":
