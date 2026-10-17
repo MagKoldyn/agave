@@ -1,6 +1,7 @@
 extends Node2D
 
 signal return_to_title
+signal enter_location(location_id: String)
 
 const PlayerScript = preload("res://scripts/player.gd")
 const PlotScript = preload("res://scripts/plot.gd")
@@ -9,13 +10,15 @@ const AmbientScript = preload("res://scripts/ambient.gd")
 const EffectsScript = preload("res://scripts/effects.gd")
 const DoorScript = preload("res://scripts/door.gd")
 const WaterFlowScript = preload("res://scripts/water_flow.gd")
+const RoadNetworkScript = preload("res://scripts/road_network.gd")
+const PortalMarkerScript = preload("res://scripts/portal_marker.gd")
 
 var player: CharacterBody2D
 var lucia: Node2D
 var plot_nodes: Array[Node2D] = []
 var locations := {
 	"lucia": Vector2(225, 346), "well": Vector2(145, 342), "home": Vector2(194, 166),
-	"workshop": Vector2(600, 166), "market": Vector2(912, 215)
+	"workshop": Vector2(525, 174), "market": Vector2(912, 215), "aqueduct": Vector2(955, 336)
 }
 var plot_positions := [Vector2(410,320),Vector2(505,300),Vector2(600,322),Vector2(695,302),Vector2(447,378),Vector2(545,365),Vector2(646,382),Vector2(743,358),Vector2(482,438),Vector2(580,426),Vector2(678,440),Vector2(772,416)]
 var busy := false
@@ -31,6 +34,7 @@ var effects: Node2D
 var ambient: Node2D
 var home_door: Node2D
 var water_flow: Node2D
+var portal_nodes: Dictionary = {}
 
 func _ready() -> void:
 	var background_path := "res://assets/art/farm_map.png"
@@ -45,6 +49,7 @@ func _ready() -> void:
 	refresh()
 
 func create_world() -> void:
+	var roads := Node2D.new(); roads.set_script(RoadNetworkScript); $World.add_child(roads)
 	water_flow = Node2D.new(); water_flow.set_script(WaterFlowScript); $World.add_child(water_flow)
 	ambient = Node2D.new(); ambient.set_script(AmbientScript); $World.add_child(ambient)
 	effects = Node2D.new(); effects.set_script(EffectsScript); $World.add_child(effects)
@@ -52,9 +57,21 @@ func create_world() -> void:
 	player = CharacterBody2D.new(); player.set_script(PlayerScript); player.position = Vector2(565, 555); $World.add_child(player)
 	player.footstep.connect(func(at:Vector2): effects.burst("soil",at,.22))
 	create_world_collisions()
+	create_portals()
 	lucia = Node2D.new(); lucia.set_script(ActorScript); lucia.position = locations.lucia; $World.add_child(lucia)
 	for i in plot_positions.size():
 		var plot := Node2D.new(); plot.set_script(PlotScript); plot.index = i; plot.position = plot_positions[i]; plot.z_index = 4; $World.add_child(plot); plot_nodes.append(plot)
+
+func create_portals() -> void:
+	var names := {"workshop":"МАСТЕРСКАЯ","market":"РЫНОК","aqueduct":"АКВЕДУК"}
+	for id in names:
+		var marker := Node2D.new()
+		marker.set_script(PortalMarkerScript)
+		marker.portal_id = id
+		marker.display_name = names[id]
+		marker.position = locations[id]
+		$World.add_child(marker)
+		portal_nodes[id] = marker
 
 func create_world_collisions() -> void:
 	var scenery := StaticBody2D.new()
@@ -142,7 +159,10 @@ func _process(delta: float) -> void:
 	if prompt.visible:prompt.position.y=520.0+sin(Time.get_ticks_msec()*.006)*2.0
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("tool_1"): select_tool("hoe")
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		interact_from_mouse(event.position)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("tool_1"): select_tool("hoe")
 	elif event.is_action_pressed("tool_2"): select_tool("seeds")
 	elif event.is_action_pressed("tool_3"): select_tool("water")
 	elif event.is_action_pressed("journal"): toggle_journal()
@@ -154,8 +174,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func update_proximity() -> void:
 	var near:=nearest_target();prompt.visible=not near.is_empty()
-	if not near.is_empty():prompt.text="E / SPACE  ·  "+interaction_label(near)
+	if not near.is_empty():prompt.text="ЛКМ / E / SPACE  ·  "+interaction_label(near)
 	for i in plot_nodes.size():plot_nodes[i].hovered=near.get("type","")=="plot" and int(near.get("index",-1))==i
+	for id in portal_nodes:
+		portal_nodes[id].active=near.get("type","")=="location" and str(near.get("id",""))==id
 
 func nearest_target() -> Dictionary:
 	var best:={};var best_dist:=74.0
@@ -166,7 +188,7 @@ func nearest_target() -> Dictionary:
 	return best
 
 func interaction_label(target:Dictionary)->String:
-	if target.type=="location":return {"lucia":"Поговорить с Лусией","well":"Наполнить лейку","home":"Войти в дом","workshop":"Осмотреть мастерскую","market":"Открыть прилавок"}.get(target.id,"Осмотреть")
+	if target.type=="location":return {"lucia":"Поговорить с Лусией","well":"Наполнить лейку","home":"Войти в дом","workshop":"Войти в мастерскую","market":"Войти на рынок","aqueduct":"Спуститься в акведук"}.get(target.id,"Осмотреть")
 	var state:=str(GameState.plots[int(target.index)].state)
 	return {"debris":"Убрать камни","cleared":"Подготовить землю","tilled":"Посадить агаву","planted":"Полить агаву","mature":"Собрать агаву"}.get(state,"Осмотреть грядку")
 
@@ -178,6 +200,36 @@ func interact() -> void:
 	else:
 		player.face_toward(locations[str(target.id)])
 		interact_location(str(target.id))
+
+func interact_from_mouse(mouse_position: Vector2) -> void:
+	if busy or dialog_open or journal_open:
+		return
+	var clicked: Dictionary = {}
+	var click_distance := 64.0
+	for id in locations:
+		var distance := mouse_position.distance_to(locations[id])
+		if distance < click_distance:
+			clicked = {"type":"location","id":id}
+			click_distance = distance
+	for i in plot_positions.size():
+		var distance := mouse_position.distance_to(plot_positions[i])
+		if distance < click_distance:
+			clicked = {"type":"plot","index":i}
+			click_distance = distance
+	if clicked.is_empty():
+		clicked = nearest_target()
+	if clicked.is_empty():
+		return
+	var target_position: Vector2 = locations[str(clicked.id)] if clicked.type=="location" else plot_positions[int(clicked.index)]
+	if player.position.distance_to(target_position) > 94.0:
+		toast("Подойдите ближе")
+		return
+	if clicked.type=="plot":
+		player.face_toward(target_position)
+		interact_plot(int(clicked.index))
+	else:
+		player.face_toward(target_position)
+		interact_location(str(clicked.id))
 
 func interact_plot(index:int)->void:
 	var step:=str(GameState.current_step().id);var data:Dictionary=GameState.plots[index]
@@ -202,29 +254,32 @@ func action(index:int,new_state:String,message:String,duration:float)->void:
 
 func interact_location(id:String)->void:
 	var step:=str(GameState.current_step().id)
-	if id=="home" and step!="end_day":
-		home_door.open_temporarily(1.2)
+	if id in ["home","workshop","market","aqueduct"]:
+		busy=true;player.can_move=false
+		if id=="home":
+			await home_door.open_and_hold()
+		else:
+			effects.burst("magic" if id=="aqueduct" else "soil",locations[id]+Vector2(0,-10),.45)
+			await get_tree().create_timer(.18).timeout
+		enter_location.emit(id)
+		return
 	if id=="well":
 		GameState.water=GameState.max_water;GameState.changed.emit();effects.burst("water",locations.well+Vector2(0,-10),.8);toast("Лейка наполнена чистой водой");return
 	if id=="lucia" and step=="meet_lucia":
 		show_dialog("ЛУСИЯ МОРЕНО","Ты всё-таки приехал. Твой дед говорил: когда колодец замолчит, земля выбирает нового слушателя. Начни с трёх старых грядок. Не ради урожая — ради ответа.",[{"text":"Я приведу ферму в порядок.","call":func():GameState.flags.met_lucia=true;GameState.add_progress();close_dialog()}]);return
-	if id=="home" and step=="find_journal":
-		show_dialog("ДНЕВНИК ДОНА РАМИРО","Между страницами лежит схема старого канала. На полях выведено: «Вода помнит путь, даже когда камень забыл его».",[{"text":"Забрать дневник","call":func():GameState.flags.journal_found=true;GameState.add_item("quest_grandfather_journal");GameState.add_progress();close_dialog()}]);return
-	if id=="workshop" and step=="repair_channel":
-		if GameState.remove_item("material_wood",2) and GameState.remove_item("material_stone",1):GameState.flags.channel_repaired=true;GameState.add_progress();play_location_animation("repair",id);toast("Канал восстановлен: вода снова движется")
-		else:toast("Нужно: 2 доски и 1 камень");return
-	if id=="home" and step=="end_day":
-		home_door.open_and_hold()
-		show_dialog("КОНЕЦ ДНЯ","Первые агавы укоренились. Пока солнце опускается за красные скалы, по восстановленному каналу проходит тонкая струя воды.",[{"text":"Встретить рассвет","call":finish_day}]);return
-	if id=="workshop" and step=="craft_syrup":
-		if GameState.remove_item("crop_agave_sun",2):GameState.add_item("product_agave_syrup");GameState.add_progress();play_location_animation("craft",id);toast("Готово: сироп агавы · обычное качество")
-		else:toast("Для рецепта нужны 2 солнечные агавы");return
-	if id=="market" and step=="sell_syrup":
-		if GameState.remove_item("product_agave_syrup"):GameState.money+=58;GameState.add_progress();play_location_animation("sell",id);toast("Продано: 58 песо · цена подтверждена")
-		else:toast("Сначала приготовьте сироп");return
 	if id=="lucia" and step=="return_lucia":
 		show_dialog("ЛУСИЯ МОРЕНО","Канал запел ещё до рассвета. Значит, Сердце знает, что ты вернулся. Теперь об этом узнает и «Пыль». Что ты сделаешь с наследием деда?",[{"text":"Я отвечу, когда узнаю всю правду.","call":complete_slice}]);return
 	toast("Здесь пока нечего делать по текущей задаче.")
+
+func place_at_entrance(id: String) -> void:
+	var spawn_points := {
+		"home": Vector2(194, 214),
+		"workshop": Vector2(525, 220),
+		"market": Vector2(902, 268),
+		"aqueduct": Vector2(920, 350)
+	}
+	player.position = spawn_points.get(id, Vector2(565, 555))
+	player.facing = Vector2.DOWN
 
 func show_dialog(speaker:String,text:String,choices:Array)->void:
 	dialog_open=true;player.can_move=false;dialog_panel.visible=true;hud.speaker.text=speaker;hud.dialog_text.text=text

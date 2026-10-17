@@ -22,6 +22,7 @@ var footstep_clock := 0.0
 var animation_clock := 0.0
 var current_direction := "down"
 var sprite: Sprite2D
+var movement_bounds := Rect2(40, 195, 1072, 413)
 
 func _ready() -> void:
 	z_index = 8
@@ -79,13 +80,16 @@ func _physics_process(delta: float) -> void:
 
 	if not action_lock:
 		var speed_ratio := clampf(velocity.length() / RUN_SPEED, 0.0, 1.0)
+		var diagonal := absf(input_direction.x) > 0.32 and absf(input_direction.y) > 0.32
 		var step_wave := sin(animation_clock * TAU * 0.5) if input_direction.length_squared() > 0.01 else sin(Time.get_ticks_msec() * 0.0024) * 0.25
 		sprite.position.y = -34.0 - abs(step_wave) * (1.7 + speed_ratio)
 		sprite.rotation = step_wave * 0.008 * speed_ratio
+		var diagonal_skew := signf(input_direction.x) * 0.035 if diagonal else 0.0
+		sprite.skew = lerpf(sprite.skew, diagonal_skew, minf(delta * 10.0, 1.0))
 
 	move_and_slide()
-	position.x = clampf(position.x, 40.0, 1112.0)
-	position.y = clampf(position.y, 195.0, 608.0)
+	position.x = clampf(position.x, movement_bounds.position.x, movement_bounds.end.x)
+	position.y = clampf(position.y, movement_bounds.position.y, movement_bounds.end.y)
 	queue_redraw()
 
 func _direction_name(direction: Vector2) -> String:
@@ -123,6 +127,7 @@ func play_action(_kind: String) -> void:
 	await strike.finished
 	var settle := create_tween().set_parallel(true)
 	settle.tween_property(sprite, "rotation", 0.0, 0.2).set_trans(Tween.TRANS_ELASTIC)
+	settle.tween_property(sprite, "skew", 0.0, 0.2)
 	settle.tween_property(sprite, "position", start_position, 0.2)
 	settle.tween_property(sprite, "scale", Vector2.ONE * DISPLAY_SCALE, 0.2)
 	await settle.finished

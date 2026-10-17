@@ -113,4 +113,4 @@ text = "ПРОДОЛЖИТЬ"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.76, 0.77, 0.68, 1)
 theme_override_font_sizes/font_size = 12
-text = "WASD — идти  ·  SHIFT — бег  ·  E / SPACE — действие"
+text = "WASD — идти  ·  SHIFT — бег  ·  ЛКМ / E — действие"
