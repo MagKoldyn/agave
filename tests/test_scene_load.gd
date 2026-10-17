@@ -43,6 +43,39 @@ func check_scene(path: String) -> void:
 			push_error("FAIL: пиксельные персонажи не созданы")
 		else:
 			print("PASS: созданы пиксельные персонажи: ", sprite_count)
+		var player: CharacterBody2D = scene.get("player")
+		var player_sprite: Sprite2D = player.get("sprite")
+		if player_sprite.hframes != 4 or player_sprite.vframes != 4:
+			failures += 1
+			push_error("FAIL: атлас ходьбы героя не разбит на 4 × 4 кадра")
+		else:
+			print("PASS: атлас ходьбы содержит 16 направленных кадров")
+		for model_path in [
+			"res://assets/art/player_walk_sage.png",
+			"res://assets/art/player_walk_ochre.png",
+			"res://assets/art/player_walk_desert.png"
+		]:
+			if not ResourceLoader.exists(model_path):
+				failures += 1
+				push_error("FAIL: отсутствует вариант героя " + model_path)
+		Input.action_press("move_right")
+		Input.action_press("run")
+		for i in 18:
+			await physics_frame
+		if player.velocity.x < 180.0:
+			failures += 1
+			push_error("FAIL: бег не набирает ожидаемую скорость")
+		else:
+			print("PASS: ходьба, бег и плавное ускорение активны")
+		Input.action_release("move_right")
+		Input.action_release("run")
+		var door: Node2D = scene.get("home_door")
+		var water: Node2D = scene.get("water_flow")
+		if door == null or water == null:
+			failures += 1
+			push_error("FAIL: дверь или слой течения воды не созданы")
+		else:
+			print("PASS: интерактивная дверь и течение воды созданы")
 	print("PASS: загружена сцена " + path)
 	scene.queue_free()
 	await process_frame

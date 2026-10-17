@@ -7,6 +7,8 @@ const PlotScript = preload("res://scripts/plot.gd")
 const ActorScript = preload("res://scripts/world_actor.gd")
 const AmbientScript = preload("res://scripts/ambient.gd")
 const EffectsScript = preload("res://scripts/effects.gd")
+const DoorScript = preload("res://scripts/door.gd")
+const WaterFlowScript = preload("res://scripts/water_flow.gd")
 
 var player: CharacterBody2D
 var lucia: Node2D
@@ -27,6 +29,8 @@ var journal_panel: PanelContainer
 var completion_panel: PanelContainer
 var effects: Node2D
 var ambient: Node2D
+var home_door: Node2D
+var water_flow: Node2D
 
 func _ready() -> void:
 	var background_path := "res://assets/art/farm_map.png"
@@ -41,13 +45,34 @@ func _ready() -> void:
 	refresh()
 
 func create_world() -> void:
+	water_flow = Node2D.new(); water_flow.set_script(WaterFlowScript); $World.add_child(water_flow)
 	ambient = Node2D.new(); ambient.set_script(AmbientScript); $World.add_child(ambient)
 	effects = Node2D.new(); effects.set_script(EffectsScript); $World.add_child(effects)
+	home_door = Node2D.new(); home_door.set_script(DoorScript); home_door.position = Vector2(179, 142); $World.add_child(home_door)
 	player = CharacterBody2D.new(); player.set_script(PlayerScript); player.position = Vector2(565, 555); $World.add_child(player)
 	player.footstep.connect(func(at:Vector2): effects.burst("soil",at,.22))
+	create_world_collisions()
 	lucia = Node2D.new(); lucia.set_script(ActorScript); lucia.position = locations.lucia; $World.add_child(lucia)
 	for i in plot_positions.size():
 		var plot := Node2D.new(); plot.set_script(PlotScript); plot.index = i; plot.position = plot_positions[i]; plot.z_index = 4; $World.add_child(plot); plot_nodes.append(plot)
+
+func create_world_collisions() -> void:
+	var scenery := StaticBody2D.new()
+	scenery.name = "SceneryCollision"
+	$World.add_child(scenery)
+	var well_shape := CollisionShape2D.new()
+	var well_circle := CircleShape2D.new()
+	well_circle.radius = 27.0
+	well_shape.shape = well_circle
+	well_shape.position = Vector2(145, 342)
+	scenery.add_child(well_shape)
+	var water_shape := CollisionPolygon2D.new()
+	water_shape.polygon = PackedVector2Array([
+		Vector2(1004, 246), Vector2(1152, 184), Vector2(1152, 648),
+		Vector2(948, 648), Vector2(948, 604), Vector2(965, 548),
+		Vector2(1015, 421), Vector2(986, 367)
+	])
+	scenery.add_child(water_shape)
 
 func create_ui() -> void:
 	var layer := $UI
@@ -129,7 +154,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func update_proximity() -> void:
 	var near:=nearest_target();prompt.visible=not near.is_empty()
-	if not near.is_empty():prompt.text="E  ·  "+interaction_label(near)
+	if not near.is_empty():prompt.text="E / SPACE  ·  "+interaction_label(near)
 	for i in plot_nodes.size():plot_nodes[i].hovered=near.get("type","")=="plot" and int(near.get("index",-1))==i
 
 func nearest_target() -> Dictionary:
@@ -147,8 +172,12 @@ func interaction_label(target:Dictionary)->String:
 
 func interact() -> void:
 	var target:=nearest_target();if target.is_empty():return
-	if target.type=="plot":interact_plot(int(target.index))
-	else:interact_location(str(target.id))
+	if target.type=="plot":
+		player.face_toward(plot_positions[int(target.index)])
+		interact_plot(int(target.index))
+	else:
+		player.face_toward(locations[str(target.id)])
+		interact_location(str(target.id))
 
 func interact_plot(index:int)->void:
 	var step:=str(GameState.current_step().id);var data:Dictionary=GameState.plots[index]
@@ -173,6 +202,8 @@ func action(index:int,new_state:String,message:String,duration:float)->void:
 
 func interact_location(id:String)->void:
 	var step:=str(GameState.current_step().id)
+	if id=="home" and step!="end_day":
+		home_door.open_temporarily(1.2)
 	if id=="well":
 		GameState.water=GameState.max_water;GameState.changed.emit();effects.burst("water",locations.well+Vector2(0,-10),.8);toast("Лейка наполнена чистой водой");return
 	if id=="lucia" and step=="meet_lucia":
@@ -183,6 +214,7 @@ func interact_location(id:String)->void:
 		if GameState.remove_item("material_wood",2) and GameState.remove_item("material_stone",1):GameState.flags.channel_repaired=true;GameState.add_progress();play_location_animation("repair",id);toast("Канал восстановлен: вода снова движется")
 		else:toast("Нужно: 2 доски и 1 камень");return
 	if id=="home" and step=="end_day":
+		home_door.open_and_hold()
 		show_dialog("КОНЕЦ ДНЯ","Первые агавы укоренились. Пока солнце опускается за красные скалы, по восстановленному каналу проходит тонкая струя воды.",[{"text":"Встретить рассвет","call":finish_day}]);return
 	if id=="workshop" and step=="craft_syrup":
 		if GameState.remove_item("crop_agave_sun",2):GameState.add_item("product_agave_syrup");GameState.add_progress();play_location_animation("craft",id);toast("Готово: сироп агавы · обычное качество")
@@ -255,7 +287,7 @@ func finish_day()->void:
 	var dusk:=create_tween();dusk.tween_property(tint,"color",Color(.10,.12,.28,.62),.8).set_trans(Tween.TRANS_SINE);await dusk.finished
 	GameState.end_day();GameState.add_progress();effects.burst("magic",Vector2(600,330),1.6)
 	var dawn:=create_tween();dawn.tween_property(tint,"color",Color(1.0,.62,.28,.22),.55);dawn.tween_property(tint,"color",Color(.145,.18,.35,0),.75).set_trans(Tween.TRANS_SINE);await dawn.finished
-	player.can_move=true;toast("День 2 · агава созрела")
+	home_door.close();player.can_move=true;toast("День 2 · агава созрела")
 
 func make_label(text:String,size:int,color:Color)->Label:
 	var label:=Label.new();label.text=text;label.add_theme_font_size_override("font_size",size);label.add_theme_color_override("font_color",color);return label

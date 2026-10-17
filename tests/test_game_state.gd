@@ -16,6 +16,9 @@ func run() -> void:
 	var state = load("res://scripts/game_state.gd").new()
 	root.add_child(state)
 	state.reset_state()
+	state.character_model = "ochre"
+	state.reset_state()
+	check(state.character_model == "ochre", "выбранный облик сохраняется при старте новой игры")
 	check(state.quest_steps.size() == 12, "цепочка содержит 12 активных целей")
 	check(state.current_step().id == "meet_lucia", "глава начинается со встречи с Лусией")
 	state.add_progress()
@@ -31,5 +34,8 @@ func run() -> void:
 	check(state.day == 2, "смена дня обновляет календарь")
 	check(state.plots[0].state == "mature", "учебная агава созревает к следующей цели")
 	check(state.water == state.max_water, "лейка пополняется утром")
+	state.save_game()
+	state.character_model = "sage"
+	check(state.load_game() and state.character_model == "ochre", "облик героя сохраняется и загружается")
 	print("RESULT: %d failure(s)" % failures)
 	quit(1 if failures else 0)

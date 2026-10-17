@@ -12,6 +12,7 @@ var money := 120
 var water := 8
 var max_water := 8
 var selected_tool := "hoe"
+var character_model := "sage"
 var quest_index := 0
 var quest_progress := 0
 var inventory: Dictionary = {}
@@ -29,8 +30,10 @@ func load_quest_data() -> void:
 	quest_steps = parsed.get("steps", []) if parsed is Dictionary else []
 
 func reset_state() -> void:
+	var preserved_model := character_model
 	day = 1; minutes = 6 * 60; money = 120; water = 8; max_water = 8
 	selected_tool = "hoe"; quest_index = 0; quest_progress = 0
+	character_model = preserved_model
 	inventory = {"seed_agave_sun": 6, "material_wood": 3, "material_stone": 2}
 	flags = {"met_lucia": false, "journal_found": false, "channel_repaired": false, "slice_complete": false}
 	plots.clear()
@@ -77,7 +80,7 @@ func end_day() -> void:
 	save_game(); changed.emit()
 
 func save_game() -> void:
-	var data := {"version":VERSION,"day":day,"minutes":minutes,"money":money,"water":water,"max_water":max_water,"selected_tool":selected_tool,"quest_index":quest_index,"quest_progress":quest_progress,"inventory":inventory,"flags":flags,"plots":plots}
+	var data := {"version":VERSION,"day":day,"minutes":minutes,"money":money,"water":water,"max_water":max_water,"selected_tool":selected_tool,"character_model":character_model,"quest_index":quest_index,"quest_progress":quest_progress,"inventory":inventory,"flags":flags,"plots":plots}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file: file.store_string(JSON.stringify(data))
 
@@ -85,5 +88,5 @@ func load_game() -> bool:
 	if not has_save(): return false
 	var parsed = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH))
 	if not parsed is Dictionary or int(parsed.get("version", 0)) != VERSION: return false
-	day=int(parsed.day);minutes=int(parsed.minutes);money=int(parsed.money);water=int(parsed.water);max_water=int(parsed.max_water);selected_tool=str(parsed.selected_tool);quest_index=int(parsed.quest_index);quest_progress=int(parsed.quest_progress);inventory=parsed.inventory;flags=parsed.flags;plots=parsed.plots
+	day=int(parsed.day);minutes=int(parsed.minutes);money=int(parsed.money);water=int(parsed.water);max_water=int(parsed.max_water);selected_tool=str(parsed.selected_tool);character_model=str(parsed.get("character_model","sage"));quest_index=int(parsed.quest_index);quest_progress=int(parsed.quest_progress);inventory=parsed.inventory;flags=parsed.flags;plots=parsed.plots
 	changed.emit(); return true

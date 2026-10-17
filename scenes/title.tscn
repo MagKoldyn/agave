@@ -64,8 +64,36 @@ theme_override_font_sizes/font_size = 16
 text = "Вернитесь на ферму деда. Восстановите землю,\nуслышьте её память и решите судьбу Сан-Педро."
 
 [node name="Spacer" type="Control" parent="Content"]
-custom_minimum_size = Vector2(0, 20)
+custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
+
+[node name="AppearanceLabel" type="Label" parent="Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.75, 0.37, 1)
+theme_override_font_sizes/font_size = 12
+text = "ОБЛИК ПУТНИКА"
+
+[node name="ModelChoices" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="Sage" type="Button" parent="Content/ModelChoices"]
+custom_minimum_size = Vector2(124, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "ШАЛФЕЙ"
+
+[node name="Ochre" type="Button" parent="Content/ModelChoices"]
+custom_minimum_size = Vector2(124, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "ОХРА"
+
+[node name="Desert" type="Button" parent="Content/ModelChoices"]
+custom_minimum_size = Vector2(124, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "ПУСТЫНЯ"
 
 [node name="NewGame" type="Button" parent="Content"]
 custom_minimum_size = Vector2(0, 52)
@@ -85,4 +113,4 @@ text = "ПРОДОЛЖИТЬ"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.76, 0.77, 0.68, 1)
 theme_override_font_sizes/font_size = 12
-text = "WASD — движение   ·   E — взаимодействие   ·   J — журнал"
+text = "WASD — идти  ·  SHIFT — бег  ·  E / SPACE — действие"
