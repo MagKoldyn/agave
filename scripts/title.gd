@@ -13,6 +13,11 @@ func _ready() -> void:
 	$Content/Continue.pressed.connect(func(): continue_game.emit())
 	$Content/Continue.visible = GameState.has_save()
 	$Content/NewGame.grab_focus()
+	$Backdrop.pivot_offset = get_viewport_rect().size*.5
+	$Backdrop.scale = Vector2(1.035,1.035)
+	var drift:=create_tween().set_loops().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	drift.tween_property($Backdrop,"scale",Vector2(1.075,1.075),9.0)
+	drift.tween_property($Backdrop,"scale",Vector2(1.035,1.035),9.0)
 	var tween := create_tween().set_parallel(true)
 	$Content.modulate.a = 0.0
 	$Content.position.x += 28.0

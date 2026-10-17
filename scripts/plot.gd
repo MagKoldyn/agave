@@ -33,7 +33,7 @@ func stone(at:Vector2,size:float)->void:
 
 func agave(at:Vector2,size:float,glow:bool)->void:
 	for i in 10:
-		var a:=TAU*i/10.0;var side:=Vector2(cos(a),sin(a));var tip:=at+side*size
+		var sway:=sin(shimmer*1.7+i*.83)*.035;var a:=TAU*i/10.0+sway;var side:=Vector2(cos(a),sin(a));var tip:=at+side*size*(1.0+sin(shimmer*1.2+i)*.018)
 		var perp:=Vector2(-side.y,side.x)*size*.24
 		var leaf:=PackedVector2Array([at-perp*.45,at+perp*.7,tip])
 		draw_colored_polygon(leaf,Color("78a17e") if i%2 else Color("527d73"))

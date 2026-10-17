@@ -7,7 +7,10 @@ var sprite: Sprite2D
 
 func _process(delta: float) -> void:
 	pulse += delta
-	if sprite: sprite.position.y = -29.0 + sin(pulse * 2.0) * 0.8
+	if sprite:
+		sprite.position.y = -29.0 + sin(pulse * 2.0) * 0.8
+		sprite.rotation = sin(pulse*.8)*.006
+		sprite.scale = Vector2(.082*(1.0-sin(pulse*2.0)*.004),.082*(1.0+sin(pulse*2.0)*.007))
 	queue_redraw()
 
 func _ready() -> void:
@@ -18,6 +21,10 @@ func _ready() -> void:
 		sprite.position = Vector2(0, -29)
 		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		add_child(sprite)
+
+func react() -> void:
+	if not sprite:return
+	var tween:=create_tween();tween.tween_property(sprite,"position:y",-36.0,.16).set_trans(Tween.TRANS_QUAD);tween.tween_property(sprite,"position:y",-29.0,.3).set_trans(Tween.TRANS_BOUNCE)
 
 func _draw() -> void:
 	if actor_kind == "lucia":

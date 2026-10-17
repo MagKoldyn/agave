@@ -18,6 +18,9 @@ func check_scene(path: String) -> void:
 		return
 	root.add_child(scene)
 	await process_frame
+	if scene.get_script() == null:
+		failures += 1
+		push_error("FAIL: корневой скрипт сцены не скомпилирован: " + path)
 	if path.ends_with("title.tscn"):
 		var title_map: TextureRect = scene.get_node("Backdrop")
 		if title_map.texture == null:

@@ -17,5 +17,14 @@ mouse_filter = 2
 
 [node name="World" type="Node2D" parent="."]
 
+[node name="Lighting" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="DayTint" type="ColorRect" parent="Lighting"]
+offset_right = 1152.0
+offset_bottom = 648.0
+mouse_filter = 2
+color = Color(0.145, 0.18, 0.35, 0)
+
 [node name="UI" type="CanvasLayer" parent="."]
 layer = 10
