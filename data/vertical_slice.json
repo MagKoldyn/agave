@@ -1,0 +1,18 @@
+{
+  "id":"quest_roots_tutorial",
+  "title":"Корни",
+  "steps":[
+    {"id":"meet_lucia","text":"Найдите Лусию у старого колодца.","target":1},
+    {"id":"clear_field","text":"Уберите камни с трёх старых грядок.","target":3},
+    {"id":"prepare_soil","text":"Подготовьте три грядки мотыгой.","target":3},
+    {"id":"plant_agave","text":"Посадите три солнечные агавы.","target":3},
+    {"id":"water_agave","text":"Полейте молодые растения.","target":3},
+    {"id":"find_journal","text":"Пока агава укореняется, найдите дневник в доме.","target":1},
+    {"id":"repair_channel","text":"Почините подвод воды у мастерской.","target":1},
+    {"id":"end_day","text":"Завершите день у крыльца.","target":1},
+    {"id":"harvest","text":"Соберите три зрелые агавы.","target":3},
+    {"id":"craft_syrup","text":"Сварите первую партию сиропа в мастерской.","target":1},
+    {"id":"sell_syrup","text":"Продайте сироп на рынке.","target":1},
+    {"id":"return_lucia","text":"Расскажите Лусии о шёпоте из колодца.","target":1}
+  ]
+}

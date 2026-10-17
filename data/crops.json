@@ -1,0 +1,4 @@
+{
+  "plant_agave_sun":{"name":"Солнечная агава","stages":4,"growth_days":3,"ideal_moisture":[45,70],"base_value":18},
+  "plant_nopal":{"name":"Нопаль","stages":4,"growth_days":2,"ideal_moisture":[25,55],"base_value":12}
+}

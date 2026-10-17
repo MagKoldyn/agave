@@ -1,0 +1,8 @@
+{
+  "seed_agave_sun":{"name":"Семена солнечной агавы","category":"seed","stack_limit":99,"value":10},
+  "crop_agave_sun":{"name":"Солнечная агава","category":"crop","stack_limit":24,"value":18},
+  "material_wood":{"name":"Доска","category":"material","stack_limit":99,"value":8},
+  "material_stone":{"name":"Камень","category":"material","stack_limit":99,"value":4},
+  "product_agave_syrup":{"name":"Сироп агавы","category":"product","stack_limit":12,"value":58},
+  "quest_grandfather_journal":{"name":"Дневник дона Рамиро","category":"quest","stack_limit":1,"value":0,"quest_bound":true}
+}

@@ -1,0 +1,90 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource path="res://scripts/title.gd" type="Script" id="1"]
+[ext_resource path="res://assets/art/title_key_art.png" type="Texture2D" id="2"]
+
+[node name="Title" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Backdrop" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Shade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.025, 0.08, 0.065, 0.36)
+
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 690.0
+offset_top = 128.0
+offset_right = 1085.0
+offset_bottom = 573.0
+theme_override_constants/separation = 12
+
+[node name="Kicker" type="Label" parent="Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.75, 0.37, 1)
+theme_override_font_sizes/font_size = 13
+text = "ЗЕМЛЯ · ПАМЯТЬ · ВЫБОР"
+
+[node name="Title" type="Label" parent="Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.94, 0.77, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.65)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_font_sizes/font_size = 62
+text = "СЕРДЦЕ\nАГАВЫ"
+
+[node name="Rule" type="HSeparator" parent="Content"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="Description" type="Label" parent="Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.9, 0.78, 1)
+theme_override_font_sizes/font_size = 16
+text = "Вернитесь на ферму деда. Восстановите землю,\nуслышьте её память и решите судьбу Сан-Педро."
+
+[node name="Spacer" type="Control" parent="Content"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="NewGame" type="Button" parent="Content"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.82, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 17
+text = "НАЧАТЬ ИСТОРИЮ"
+
+[node name="Continue" type="Button" parent="Content"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "ПРОДОЛЖИТЬ"
+
+[node name="Hint" type="Label" parent="Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.76, 0.77, 0.68, 1)
+theme_override_font_sizes/font_size = 12
+text = "WASD — движение   ·   E — взаимодействие   ·   J — журнал"

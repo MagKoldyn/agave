@@ -1,0 +1,38 @@
+; Engine configuration file.
+; Heart of Agave — vertical slice foundation.
+config_version=5
+
+[application]
+config/name="Сердце Агавы"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.6", "GL Compatibility")
+boot_splash/image="res://assets/art/title_key_art.png"
+boot_splash/bg_color=Color(0.066, 0.14, 0.12, 1)
+
+[autoload]
+GameState="*res://scripts/game_state.gd"
+
+[display]
+window/size/viewport_width=1152
+window/size/viewport_height=648
+window/size/window_width_override=1280
+window/size/window_height_override=720
+window/stretch/mode="canvas_items"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
+environment/defaults/default_clear_color=Color(0.05, 0.11, 0.095, 1)
+
+[input]
+move_left={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":65),Object(InputEventKey,"physical_keycode":4194311),Object(InputEventJoypadMotion,"axis":0,"axis_value":-1.0)]}
+move_right={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":68),Object(InputEventKey,"physical_keycode":4194313),Object(InputEventJoypadMotion,"axis":0,"axis_value":1.0)]}
+move_up={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":87),Object(InputEventKey,"physical_keycode":4194320),Object(InputEventJoypadMotion,"axis":1,"axis_value":-1.0)]}
+move_down={"deadzone":0.25,"events":[Object(InputEventKey,"physical_keycode":83),Object(InputEventKey,"physical_keycode":4194322),Object(InputEventJoypadMotion,"axis":1,"axis_value":1.0)]}
+interact={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":69),Object(InputEventJoypadButton,"button_index":0)]}
+tool_1={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":49)]}
+tool_2={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":50)]}
+tool_3={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":51)]}
+journal={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":74),Object(InputEventJoypadButton,"button_index":6)]}
+pause={"deadzone":0.2,"events":[Object(InputEventKey,"physical_keycode":4194305)]}

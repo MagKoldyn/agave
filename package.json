@@ -1,1 +1,0 @@
-{"name":"heart-of-agave-prototype","version":"0.1.0","private":true,"description":"Играбельный вертикальный прототип «Сердце Агавы»","scripts":{"start":"node server.js","test":"node --test tests/*.test.js"},"engines":{"node":">=18"}}
