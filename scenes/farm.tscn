@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource path="res://scripts/farm.gd" type="Script" id="1"]
-[ext_resource path="res://assets/art/farm_map.png" type="Texture2D" id="2"]
 
 [node name="Farm" type="Node2D"]
 script = ExtResource("1")
@@ -12,7 +11,6 @@ layer = -10
 [node name="Map" type="TextureRect" parent="Background"]
 offset_right = 1152.0
 offset_bottom = 648.0
-texture = ExtResource("2")
 expand_mode = 1
 stretch_mode = 6
 mouse_filter = 2

@@ -4,6 +4,11 @@ signal new_game
 signal continue_game
 
 func _ready() -> void:
+	var background_path := "res://assets/art/farm_map.png"
+	if ResourceLoader.exists(background_path):
+		$Backdrop.texture = load(background_path)
+	else:
+		push_warning("Фон меню не найден: " + background_path)
 	$Content/NewGame.pressed.connect(func(): new_game.emit())
 	$Content/Continue.pressed.connect(func(): continue_game.emit())
 	$Content/Continue.visible = GameState.has_save()

@@ -25,6 +25,11 @@ var journal_panel: PanelContainer
 var completion_panel: PanelContainer
 
 func _ready() -> void:
+	var background_path := "res://assets/art/farm_map.png"
+	if ResourceLoader.exists(background_path):
+		$Background/Map.texture = load(background_path)
+	else:
+		push_warning("Карта фермы не найдена: " + background_path)
 	create_world()
 	create_ui()
 	GameState.changed.connect(refresh)

@@ -18,6 +18,13 @@ func check_scene(path: String) -> void:
 		return
 	root.add_child(scene)
 	await process_frame
+	if path.ends_with("title.tscn"):
+		var title_map: TextureRect = scene.get_node("Backdrop")
+		if title_map.texture == null:
+			failures += 1
+			push_error("FAIL: пиксельный фон меню не импортирован")
+		else:
+			print("PASS: пиксельный фон меню импортирован")
 	if path.ends_with("farm.tscn"):
 		var map: TextureRect = scene.get_node("Background/Map")
 		if map.texture == null or map.texture.get_size().x < 1000:
