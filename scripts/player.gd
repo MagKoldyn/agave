@@ -24,7 +24,7 @@ func _physics_process(delta: float) -> void:
 func _draw() -> void:
 	var bob := sin(step_time) * 2.0 if velocity.length() > 0 else sin(Time.get_ticks_msec() * 0.002) * 0.7
 	# Soft painted shadow.
-	draw_ellipse(Vector2(0, 18), Vector2(18, 7), Color(0.08,0.11,0.08,0.35))
+	fill_ellipse(Vector2(0, 18), Vector2(18, 7), Color(0.08,0.11,0.08,0.35))
 	# Satchel, boots, body and scarf use irregular silhouettes rather than blocks.
 	draw_colored_polygon(PackedVector2Array([Vector2(-10,7+bob),Vector2(-8,26),Vector2(-1,27),Vector2(1,8+bob)]),Color("5a3428"))
 	draw_colored_polygon(PackedVector2Array([Vector2(1,8+bob),Vector2(3,27),Vector2(10,26),Vector2(10,6+bob)]),Color("6b3a28"))
@@ -34,7 +34,7 @@ func _draw() -> void:
 	draw_arc(Vector2(0,-30+bob),12,PI,TAU,14,Color("202d28"),6)
 	draw_colored_polygon(PackedVector2Array([Vector2(10,-10+bob),Vector2(21,-4+bob),Vector2(18,15+bob),Vector2(8,10+bob)]),Color("9b5a37"))
 
-func draw_ellipse(center: Vector2, radius: Vector2, color: Color) -> void:
+func fill_ellipse(center: Vector2, radius: Vector2, color: Color) -> void:
 	var points := PackedVector2Array()
 	for i in 24:
 		var angle := TAU * i / 24.0

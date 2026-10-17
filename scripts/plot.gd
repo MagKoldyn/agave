@@ -14,7 +14,7 @@ func _draw() -> void:
 	draw_colored_polygon(patch,soil)
 	draw_polyline(PackedVector2Array([patch[0],patch[1],patch[2],patch[3],patch[4],patch[5],patch[6],patch[7],patch[0]]),Color("b77a4d"),2)
 	if data.state in ["cleared","tilled","planted","sprout","mature"]:
-		for y in [-12.0,0.0,12.0]: draw_arc(Vector2(0,y),Vector2(30,6),Color("4f3528"))
+		for y in [-12.0,0.0,12.0]: stroke_ellipse(Vector2(0,y),Vector2(30,6),Color("4f3528"))
 	if data.state == "debris":
 		stone(Vector2(-16,-5),11);stone(Vector2(13,7),9);stone(Vector2(24,-9),6)
 	if data.state in ["planted","sprout","mature"]:
@@ -34,9 +34,9 @@ func agave(at:Vector2,size:float,glow:bool)->void:
 		var leaf:=PackedVector2Array([at-perp*.45,at+perp*.7,tip])
 		draw_colored_polygon(leaf,Color("78a17e") if i%2 else Color("527d73"))
 	if glow:
-		var alpha:=0.55+sin(shimmer*4.0)*0.2;draw_arc(at,Vector2(size+4,size*.52),Color(0.66,0.9,0.76,alpha))
+		var alpha:=0.55+sin(shimmer*4.0)*0.2;stroke_ellipse(at,Vector2(size+4,size*.52),Color(0.66,0.9,0.76,alpha))
 
-func draw_arc(center:Vector2,radius:Vector2,color:Color)->void:
+func stroke_ellipse(center:Vector2,radius:Vector2,color:Color)->void:
 	var pts:=PackedVector2Array()
 	for i in 18:
 		var a:=TAU*i/17.0;pts.append(center+Vector2(cos(a)*radius.x,sin(a)*radius.y))
